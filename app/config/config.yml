@@ -8,6 +8,7 @@ imports:
 parameters:
     locale: en
     vdm.rss.url: "http://www.viedemerde.fr/rss"
+    vdm.rss.default_nb_posts : 200
 
 framework:
     #esi: ~
