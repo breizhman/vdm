@@ -20,6 +20,8 @@ class VdmRssCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $rss = $this->getContainer()->get('app.vdm.rss');
+        $rss->load();
     }
 
 }
