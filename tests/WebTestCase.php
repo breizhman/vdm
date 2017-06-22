@@ -12,13 +12,17 @@
 namespace Tests;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
-
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Customisation des cas de tests
+ *
+ * @author Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 class WebTestCase extends BaseWebTestCase
 {
     /**
-     * Checks the success state of a response.
+     * Vérifie que la reponse HTTP est OK et que le contenu est bien en JSON
      *
      * @param Response $response Response object
      * @param bool     $success  to define whether the response is expected to be successful
@@ -34,6 +38,12 @@ class WebTestCase extends BaseWebTestCase
         );
     }
 
+    /**
+     * Compare le nombre d'articles d'une liste de données JSON à autre nombre
+     *
+     * @param      string   $jsonData   The json data
+     * @param      integer  $count     The count
+     */
     public function assertJsonPostsCount($jsonData, $count)
     {
         $data = json_decode($jsonData, true);

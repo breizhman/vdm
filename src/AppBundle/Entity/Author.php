@@ -6,7 +6,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Author
+ * Entité de la table des auteurs
+ *
+ * @author Sylvain Lacot <sylvain.lacot@gmail.com>
  *
  * @ORM\Table(name="author")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\AuthorRepository")
@@ -37,16 +39,31 @@ class Author
         $this->posts = new ArrayCollection();
     }
 
+    /**
+     * récupère le nom de l'auteur
+     *
+     * @return     string  The name.
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * Modifie le nom de l'auteur
+     *
+     * @param      string  $name   The name
+     */
     public function setName($name)
     {
         $this->name = $name;
     }
 
+    /**
+     * Récupère la liste des articles de l'auteur courant
+     *
+     * @return     array The posts.
+     */
     public function getPosts()
     {
         return $this->posts;

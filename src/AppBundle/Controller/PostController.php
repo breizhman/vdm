@@ -3,30 +3,35 @@
 namespace AppBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-
 use Symfony\Component\HttpFoundation\Request;
-
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\View;
-
 use AppBundle\Entity\Post;
 
+/**
+ * Controlleur de l'API REST permettant de consulter des articles en format JSON
+ *
+ * @author Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 class PostController extends Controller
 {
     /**
+     * affiche une liste d'aticle au format JSON
+     * 
+     * @param Request $request instance de la requete HTTP
+     * 
      * @Get("/api/posts")
      * @View
      */
     public function getPostsAction(Request $request)
     {
-        $repo = $this->get('doctrine.orm.entity_manager')
-                ->getRepository('AppBundle:Post');
-
+        # récupération du nom de l'auteur
         $author = null;
         if ($request->query->has('author') && !empty($request->query->get('author'))) {
             $author = $request->query->get('author');
         }
 
+        # récupération des date de debut et de fin pour définir un interval
         $from = $to = null;
         if (
             ($request->query->has('from') && $this->validateDate($request->query->get('from')))
@@ -37,11 +42,16 @@ class PostController extends Controller
             $to     = $request->query->get('to');
         }
 
+        $repo = $this->get('doctrine.orm.entity_manager')->getRepository('AppBundle:Post');
+
         if(!empty($author) && !empty($from) && !empty($to)) {
+            # filtre sur un auteur et sur une période
             $posts = $repo->findByAuthorAndPeriod($author, $from, $to);
         } else if(!empty($author)) {
+            # filtre sur un auteur
             $posts = $repo->findByAuthor($author);
         } else if(!empty($from) && !empty($to)) {
+            # filtre sur une période
             $posts = $repo->findByPeriod($from, $to);
         } else {
             $posts = $repo->findAll();
@@ -56,6 +66,10 @@ class PostController extends Controller
     }
 
     /**
+     * affiche un aticle au format JSON
+     * 
+     * @param integer $id identifiant de l'article a afficher
+     * 
      * @Get(
      *     "/api/posts/{id}",
      *     requirements = {"id"="\d+"}
@@ -71,15 +85,17 @@ class PostController extends Controller
         if(!$post) {
             throw $this->createNotFoundException();
         }
-        
-        $postsArray = [];
-        if ($post) {
-            $postsArray = $this->getPostToArray($post);
-        }
 
-        return ['post' => $postsArray];
+        return ['post' => $this->getPostToArray($post)];
     }
 
+    /**
+     * récupère les données d'une entité Post sous forme d'un tableau
+     *
+     * @param      \AppBundle\Entity\Post  $post   l'entité de l'article
+     *
+     * @return     array                    tableau de données de l'article
+     */
     public function getPostToArray(Post $post)
     {
         return [
@@ -90,6 +106,13 @@ class PostController extends Controller
         ];
     }
 
+    /**
+     * valide le format d'une date au format yyyy-mm-dd
+     *
+     * @param      string  $date   La date sous forme d'une chaine de caractère
+     *
+     * @return     boolean
+     */
     public function validateDate($date)
     {
         $d = \DateTime::createFromFormat('Y-m-d', $date);

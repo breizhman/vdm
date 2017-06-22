@@ -3,10 +3,16 @@ namespace Tests\AppBundle\Service;
 
 use Tests\WebTestCase;
 
+/**
+ * Test unitaire du service gérant la récupération des articles du flux RSS
+ *
+ * @author Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 class VdmRssTest extends WebTestCase
 {
     public function setUp()
     {
+        # on vide la bdd avant les test
         $this->loadFixtures([]);
     }
 
@@ -22,7 +28,7 @@ class VdmRssTest extends WebTestCase
     public function testLoad()
     {
         $service = $this->getContainer()->get('app.vdm.rss');
-        
+
         $posts = $this->getContainer()
                       ->get('doctrine.orm.entity_manager')
                       ->getRepository('AppBundle:Post')

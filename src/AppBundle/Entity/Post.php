@@ -5,8 +5,10 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Post
- *
+ * Entité de la table des aticles
+ * 
+ * @author Sylvain Lacot <sylvain.lacot@gmail.com>
+ * 
  * @ORM\Table(name="post")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\PostRepository")
  */

@@ -6,8 +6,18 @@ use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use AppBundle\Entity\Post;
 
+/**
+ * ALimente la base de données avec des articles
+ *
+ * @author Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 class LoadPostData extends AbstractFixture implements OrderedFixtureInterface
 {
+    /**
+     * chargement des données en base
+     *
+     * @param      \Doctrine\Common\Persistence\ObjectManager  $manager  The manager
+     */
     public function load(ObjectManager $manager)
     {
         $post = new Post();
@@ -40,6 +50,11 @@ class LoadPostData extends AbstractFixture implements OrderedFixtureInterface
         $manager->flush();
     }
 
+    /**
+     * ordre d'execution des fixtures
+     *
+     * @return     integer  The order.
+     */
     public function getOrder()
     {
         return 3;
