@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManager;
 use Psr\Log\LoggerInterface;
 use FeedIo\FeedIo;
 use AppBundle\Entity\Post;
+use AppBundle\Entity\Author;
 
 class VdmRss
 {
@@ -83,20 +84,34 @@ class VdmRss
 
     private function savePosts()
     {
+        $authorEntites = array();
         foreach($this->posts as $post)
         {
-            $entity_post = $this->entityManager->getRepository('AppBundle:Post')->findOneByPublicId($post['publicId']);
+            if(isset($authorEntites[$post['author']])) {
+                $authorEntity = $authorEntites[$post['author']];
+            } else {
+                $authorEntity = $this->entityManager->getRepository('AppBundle:Author')->findOneByName($post['author']);
 
-            if(!$entity_post) {
-                $entity_post = new Post();
-                $entity_post->setPublicId($post['publicId']);
+                if(!$authorEntity) {
+                    $authorEntity = new Author();
+                    $authorEntity->setName($post['author']);
+                }
+
+                $authorEntites[$post['author']] = $authorEntity;
             }
 
-            $entity_post->setContent($post['content']);
-            $entity_post->setDate($post['date']);
-            $entity_post->setAuthor($post['author']);
+            $postEntity = $this->entityManager->getRepository('AppBundle:Post')->findOneByPublicId($post['publicId']);
 
-            $this->entityManager->persist($entity_post);
+            if(!$postEntity) {
+                $postEntity = new Post();
+                $postEntity->setPublicId($post['publicId']);
+            }
+
+            $postEntity->setContent($post['content']);
+            $postEntity->setDate($post['date']);
+            $postEntity->setAuthor($authorEntity);
+
+            $this->entityManager->persist($postEntity);
         }
 
         $this->entityManager->flush();

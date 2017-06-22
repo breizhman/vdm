@@ -42,12 +42,9 @@ class Post
     private $date;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="author", type="string", length=50)
+     * @ORM\ManyToOne(targetEntity="Author", cascade={"all"}, fetch="EAGER")
      */
     private $author;
-
 
     /**
      * Get id
@@ -134,11 +131,11 @@ class Post
     /**
      * Set author
      *
-     * @param string $author
+     * @param setAuthor $author
      *
      * @return Post
      */
-    public function setAuthor($author)
+    public function setAuthor(Author $author)
     {
         $this->author = $author;
 
@@ -148,7 +145,7 @@ class Post
     /**
      * Get author
      *
-     * @return string
+     * @return setAuthor
      */
     public function getAuthor()
     {
