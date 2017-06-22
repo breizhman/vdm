@@ -13,59 +13,49 @@ class VdmRss
     private $feedio;
     private $entityManager;
     private $logger;
-    private $default_nb_post;
+    private $limitPosts;
 
     private $posts;
 
-    public function __construct(FeedIo $feedio, EntityManager  $entityManager, LoggerInterface $logger, $rssUrl, $default_nb_post)
+    public function __construct(FeedIo $feedio, EntityManager  $entityManager, LoggerInterface $logger, $rssUrl, $limitPosts)
     {   
         $this->posts = array();
-        $this->default_nb_post    = $default_nb_post;
+        $this->limitPosts    = $limitPosts;
         $this->rssUrl    = $rssUrl;
         $this->feedio    = $feedio;
         $this->entityManager    = $entityManager;
         $this->logger =  $logger;
     }
 
-    public function load($saveToBdd = true)
+    public function read($page = null)
     {
-        $this->loadPosts();
-
-        if($saveToBdd) {
-            $this->savePosts();
+        $url = $this->rssUrl;
+        if (is_integer($page)) {
+            $url.= '?page='.intval($page);
         }
+        return $this->feedio->read($url)->getFeed();
     }
 
-    private function loadPosts($nbPost = null) {
-
-        if(is_null($nbPost)) {
-            $nbPost = $this->default_nb_post;
-        }
+    public function load() {
 
         $total = 0;
         $index_page = 1;
 
-        $feed = $this->feedio->read($this->rssUrl)->getFeed();
-
         do {
-
             $total+= $this->loadPostsByPage($index_page);
             $index_page++;
 
-        } while($total < $nbPost);
+        } while($total < $this->limitPosts);
 
-        $this->posts = array_slice($this->posts,0,$nbPost);
+        $this->posts = array_slice($this->posts,0,$this->limitPosts);
+
+        $this->save();
     }
 
-    private function loadPostsByPage($page = null)
+    public function loadPostsByPage($page = null)
     {
         $cpt = 0;
-        $url = $this->rssUrl;
-        if(is_integer($page)) {
-            $url.= '?page='.intval($page);
-        }
-
-        $feed = $this->feedio->read($url)->getFeed();
+        $feed = $this->read($page);
 
         foreach ( $feed as $item ) {
 
@@ -82,7 +72,7 @@ class VdmRss
         return $cpt;
     }
 
-    private function savePosts()
+    public function save()
     {
         $authorEntites = array();
         foreach($this->posts as $post)

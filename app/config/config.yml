@@ -8,7 +8,7 @@ imports:
 parameters:
     locale: en
     vdm.rss.url: "http://www.viedemerde.fr/rss"
-    vdm.rss.default_nb_posts : 200
+    vdm.rss.limit_posts : 200
 
 sensio_framework_extra:
     view: { annotations: true }

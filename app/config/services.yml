@@ -11,4 +11,4 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@logger'
             - '%vdm.rss.url%'
-            - '%vdm.rss.default_nb_posts%'
+            - '%vdm.rss.limit_posts%'
