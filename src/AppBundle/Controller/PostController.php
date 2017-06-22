@@ -22,25 +22,29 @@ class PostController extends Controller
         $repo = $this->get('doctrine.orm.entity_manager')
                 ->getRepository('AppBundle:Post');
 
-        if ($request->query->has('author') && ($request->query->has('from') && $request->query->has('to'))) {
+        $author = null;
+        if ($request->query->has('author') && !empty($request->query->get('author'))) {
+            $author = $request->query->get('author');
+        }
 
-            $posts = $repo->findByAuthorAndPeriod(
-                $request->query->get('author'), 
-                $request->query->get('from'), 
-                $request->query->get('to')
-            );
+        $from = $to = null;
+        if (
+            ($request->query->has('from') && $this->validateDate($request->query->get('from')))
+            &&
+            ($request->query->has('to') && $this->validateDate($request->query->get('to')))
+        ) {
+            $from   = $request->query->get('from');
+            $to     = $request->query->get('to');
+        }
 
+        if(!empty($author) && !empty($from) && !empty($to)) {
+            $posts = $repo->findByAuthorAndPeriod($author, $from, $to);
+        } else if(!empty($author)) {
+            $posts = $repo->findByAuthor($author);
+        } else if(!empty($from) && !empty($to)) {
+            $posts = $repo->findByPeriod($from, $to);
         } else {
-            if ($request->query->has('author')) {
-                $posts = $repo->findByAuthor($request->query->get('author'));
-            } else if ($request->query->has('from') && $request->query->has('to')) {
-                $posts = $repo->findByPeriod(
-                    $request->query->get('from'), 
-                    $request->query->get('to')
-                );
-            } else {
-                $posts = $repo->findAll();
-            }
+            $posts = $repo->findAll();
         }
         
         $postsArray = [];
@@ -64,6 +68,10 @@ class PostController extends Controller
                 ->getRepository('AppBundle:Post')
                 ->findOneByPublicId($id);
 
+        if(!$post) {
+            throw $this->createNotFoundException();
+        }
+        
         $postsArray = [];
         if ($post) {
             $postsArray = $this->getPostToArray($post);
@@ -80,5 +88,11 @@ class PostController extends Controller
            'date'       => $post->getDate(),
            'author'     => $post->getAuthor()->getName(),
         ];
+    }
+
+    public function validateDate($date)
+    {
+        $d = \DateTime::createFromFormat('Y-m-d', $date);
+        return $d && $d->format('Y-m-d') === $date;
     }
 }
