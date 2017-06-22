@@ -2,6 +2,8 @@
 
 namespace AppBundle\Repository;
 
+use Doctrine\ORM\QueryBuilder;
+
 /**
  * PostRepository
  *
@@ -10,4 +12,70 @@ namespace AppBundle\Repository;
  */
 class PostRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function findAll()
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        $this->orderByDate($qb);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findByAuthor($author)
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        $this->joinAuthorByName($qb, $author);
+        $this->orderByDate($qb);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findByPeriod($from, $to)
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        $this->whereDatePeriod($qb, $from, $to);
+        $this->orderByDate($qb);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findByAuthorAndPeriod($author, $from, $to)
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        $this->joinAuthorByName($qb, $author);
+        $this->whereDatePeriod($qb, $from, $to);
+        $this->orderByDate($qb);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function joinAuthorByName(QueryBuilder $qb, $name)
+    {
+      $qb->join('p.author', 'a', 'WITH', 'a.name = :name')
+        ->setParameter('name', $name);
+    }
+
+    public function whereDatePeriod(QueryBuilder $qb, $from, $to)
+    {
+        $from = new \Datetime($from);
+        $from->format('Y-m-d');
+
+        $to = new \Datetime($to);
+        $to->modify('+1 day -1 minutes');
+        $to->format('Y-m-d');
+
+        $qb
+          ->andWhere('p.date BETWEEN :start AND :end')
+              ->setParameter('start', $from)
+              ->setParameter('end',   $to)
+        ;
+    }
+
+    public function orderByDate(QueryBuilder $qb)
+    {
+        $qb->orderBy('p.date', 'DESC');
+    }
 }

@@ -10,6 +10,9 @@ parameters:
     vdm.rss.url: "http://www.viedemerde.fr/rss"
     vdm.rss.default_nb_posts : 200
 
+sensio_framework_extra:
+    view: { annotations: true }
+
 framework:
     #esi: ~
     #translator: { fallbacks: ['%locale%'] }
@@ -34,6 +37,8 @@ framework:
     assets: ~
     php_errors:
         log: true
+    serializer:
+        enabled: true
 
 # Twig Configuration
 twig:
@@ -69,3 +74,38 @@ swiftmailer:
     username: '%mailer_user%'
     password: '%mailer_password%'
     spool: { type: memory }
+
+
+jms_serializer:
+    handlers:
+        datetime:
+            default_format:       Y-m-d\TH:i:sO
+            default_timezone:     Europe/Paris
+            cdata:                true
+    property_naming:
+        separator:            _
+        lower_case:           true
+        enable_cache:         true
+    metadata:
+        cache:                file
+        debug:                false
+        file_cache:
+            dir:                  %kernel.cache_dir%/jms_serializer
+        auto_detection:       true
+
+        # Infers type information from Doctrine metadata if no explicit type has been defined for a property.
+        infer_types_from_doctrine_metadata:  true
+
+fos_rest:
+    body_converter:
+        enabled: true
+    view:
+        formats: { json: true, xml: false, rss: false }
+        view_response_listener: true
+    serializer:
+        serialize_null: true
+    format_listener:
+        rules:
+            - { path: '^/api', priorities: ['json'], fallback_format: 'json' }
+    routing_loader:
+        default_format: json
