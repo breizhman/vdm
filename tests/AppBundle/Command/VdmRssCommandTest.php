@@ -1,4 +1,9 @@
 <?php
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace Tests\AppBundle\Command;
 
 use Tests\WebTestCase;
@@ -12,7 +17,7 @@ class VdmRssCommandTest extends WebTestCase
 {
     public function setUp()
     {
-        # on vide la BDD de test
+        // on vide la BDD de test
         $this->loadFixtures([]);
     }
 

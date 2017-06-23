@@ -1,5 +1,9 @@
 <?php
-
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace AppBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -36,6 +40,6 @@ class VdmRssCommand extends ContainerAwareCommand
         $rss = $this->getContainer()->get('app.vdm.rss');
         $rss->load();
 
-        $output->writeln('=> '.$rss->countLoadedPosts().' posts loaded');
+        $output->writeln('=> ' . $rss->countLoadedPosts() . ' posts loaded');
     }
 }

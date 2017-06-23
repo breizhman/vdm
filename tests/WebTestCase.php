@@ -1,14 +1,10 @@
 <?php
 
 /*
- * This file is part of the Symfony package.
+ * This file is part of the API REST VDM
  *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
  */
-
 namespace Tests;
 
 use Liip\FunctionalTestBundle\Test\WebTestCase as BaseWebTestCase;
@@ -41,8 +37,8 @@ class WebTestCase extends BaseWebTestCase
     /**
      * Compare le nombre d'articles d'une liste de données JSON à autre nombre
      *
-     * @param      string   $jsonData   The json data
-     * @param      integer  $count     The count
+     * @param string  $jsonData The json data
+     * @param integer $count    The count
      */
     public function assertJsonPostsCount($jsonData, $count)
     {

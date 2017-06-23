@@ -1,4 +1,9 @@
 <?php
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace Tests\AppBundle\Service;
 
 use Tests\WebTestCase;
@@ -12,12 +17,12 @@ class VdmRssTest extends WebTestCase
 {
     public function setUp()
     {
-        # on vide la bdd avant les test
+        // on vide la bdd avant les test
         $this->loadFixtures([]);
     }
 
     public function testRead()
-    {   
+    {
         $service = $this->getContainer()->get('app.vdm.rss');
         $this->assertNotEmpty($service->read());
         $this->assertNotEmpty($service->read(1));

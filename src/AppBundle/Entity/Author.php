@@ -1,5 +1,9 @@
 <?php
-
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -34,6 +38,9 @@ class Author
      */
     private $posts;
 
+    /**
+     * initialisation de l'objet
+     */
     public function __construct()
     {
         $this->posts = new ArrayCollection();
@@ -42,7 +49,7 @@ class Author
     /**
      * récupère le nom de l'auteur
      *
-     * @return     string  The name.
+     * @return string The name.
      */
     public function getName()
     {
@@ -52,7 +59,7 @@ class Author
     /**
      * Modifie le nom de l'auteur
      *
-     * @param      string  $name   The name
+     * @param string $name The name
      */
     public function setName($name)
     {
@@ -62,7 +69,7 @@ class Author
     /**
      * Récupère la liste des articles de l'auteur courant
      *
-     * @return     array The posts.
+     * @return array The posts.
      */
     public function getPosts()
     {

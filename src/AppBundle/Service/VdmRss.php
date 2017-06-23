@@ -1,4 +1,9 @@
 <?php
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace AppBundle\Service;
 
 use Doctrine\ORM\EntityManager;
@@ -53,14 +58,19 @@ class VdmRss
     /**
      * création de l'instance du service
      *
-     * @param      \FeedIo\FeedIo               $feedio         instance du service permettant de traiter un flux RSS
-     * @param      \Doctrine\ORM\EntityManager  $entityManager  instance de l'entitity manager de Doctrine
-     * @param      \Psr\Log\LoggerInterface     $logger         instance du logger
-     * @param      string                       $rssUrl         url du flus RSS
-     * @param      integer                      $limitPosts     Nombre limite d'articles à charger
+     * @param \FeedIo\FeedIo              $feedio        instance du service permettant de traiter un flux RSS
+     * @param \Doctrine\ORM\EntityManager $entityManager instance de l'entitity manager de Doctrine
+     * @param \Psr\Log\LoggerInterface    $logger        instance du logger
+     * @param string                      $rssUrl        url du flus RSS
+     * @param integer                     $limitPosts    Nombre limite d'articles à charger
      */
-    public function __construct(FeedIo $feedio, EntityManager  $entityManager, LoggerInterface $logger, $rssUrl, $limitPosts)
-    {
+    public function __construct(
+        FeedIo $feedio,
+        EntityManager $entityManager,
+        LoggerInterface $logger,
+        $rssUrl,
+        $limitPosts
+    ) {
         $this->posts            = [];
         $this->limitPosts       = $limitPosts;
         $this->rssUrl           = $rssUrl;
@@ -72,22 +82,25 @@ class VdmRss
     /**
      * Lit et récupère la liste des articles du flux RSS
      *
-     * @param      integer  $numPage   Numéro de la page du flux
+     * @param integer $numPage Numéro de la page du flux
      *
-     * @return     array            Liste des articles
+     * @return array Liste des articles
      */
     public function read($numPage = null)
     {
         $url = $this->rssUrl;
         if (is_integer($numPage)) {
-            $url.= '?page='.intval($numPage);
+            $url .= '?page=' . intval($numPage);
         }
 
         $data = [];
         try {
             $data = $this->feedio->read($url)->getFeed();
         } catch (\Exception $e) {
-            $this->logger->error('['.__CLASS__.':'.__FUNCTION__.'] Erreur lors de la récupération des articles du site', array('url' => $url, 'exception' => $e->getMessage()));
+            $this->logger->error(
+                '[' . __CLASS__ . ':' . __FUNCTION__ . '] Erreur lors de la récupération des articles du site',
+                ['url' => $url, 'exception' => $e->getMessage()]
+            );
         }
 
         return $data;
@@ -96,50 +109,54 @@ class VdmRss
     /**
      * Charge et sauvegarde les articles du flux RSS
      */
-    public function load() {
+    public function load()
+    {
+        $this->logger->debug(
+            '[' . __CLASS__ . ':' . __FUNCTION__ . '] Chargement des articles du site VDM',
+            ['url' => $this->rssUrl]
+        );
 
-        $this->logger->debug('['.__CLASS__.':'.__FUNCTION__.'] Chargement des articles du site VDM', array('url' => $this->rssUrl));
-
-        # nombre total d'articles déjà chargé
+        // nombre total d'articles déjà chargé
         $total = 0;
-        # numéro de la page courante
+        // numéro de la page courante
         $numPage = 1;
 
-        # on parcourt toutes les pages du flux RSS tant qu'on est pas arrivé à la limite
+        // on parcourt toutes les pages du flux RSS tant qu'on est pas arrivé à la limite
         do {
-            $total+= $this->loadPostsByPage($numPage);
+            $total += $this->loadPostsByPage($numPage);
             $numPage++;
+        } while ($total < $this->limitPosts);
 
-        } while($total < $this->limitPosts);
-
-        # dans le cas où trop d'articles ont été récupéré, on scinde le tableau
-        $this->posts = array_slice($this->posts,0,$this->limitPosts);
+        // dans le cas où trop d'articles ont été récupéré, on scinde le tableau
+        $this->posts = array_slice($this->posts, 0, $this->limitPosts);
 
         $this->save();
 
-        $this->logger->debug('['.__CLASS__.':'.__FUNCTION__.'] Fin du chargement', array('countPosts' => $this->countLoadedPosts()));
+        $this->logger->debug(
+            '[' . __CLASS__ . ':' . __FUNCTION__ . '] Fin du chargement',
+            ['countPosts' => $this->countLoadedPosts()]
+        );
     }
 
     /**
      * chargement des articles par page
      *
-     * @param      integer   $numPage   Numéro de la page
+     * @param integer $numPage Numéro de la page
      *
-     * @return     integer  Nombre d'articles chargés
+     * @return integer Nombre d'articles chargés
      */
     public function loadPostsByPage($numPage = null)
     {
         $cpt = 0;
         $feed = $this->read($numPage);
 
-        foreach ( $feed as $item ) {
-
-            $this->posts[] = array(
+        foreach ($feed as $item) {
+            $this->posts[] = [
                 'publicId'  => $item->getPublicId(),
                 'content'   => strip_tags($item->getDescription()),
                 'date'      => $item->getLastModified(),
-                'author'    => $item->getAuthor()->getName()
-            );
+                'author'    => $item->getAuthor()->getName(),
+            ];
 
             $cpt++;
         }
@@ -152,21 +169,20 @@ class VdmRss
      */
     public function save()
     {
-        $this->logger->debug('['.__CLASS__.':'.__FUNCTION__.'] Sauvegarde des articles');
+        $this->logger->debug('[' . __CLASS__ . ':' . __FUNCTION__ . '] Sauvegarde des articles');
 
-        # liste des entités des auteus, utilisé pour éviter de dupliquer un auteur
+        // liste des entités des auteus, utilisé pour éviter de dupliquer un auteur
         $authorEntites = [];
 
         foreach ($this->posts as $post) {
-
-            # si l'auteur à déjà été créé lors d'une précdente ittération, on le récupère
+            // si l'auteur à déjà été créé lors d'une précdente ittération, on le récupère
             if (isset($authorEntites[$post['author']])) {
                 $authorEntity = $authorEntites[$post['author']];
             } else {
-                # sinon on récupère l'auteur en BDD, s'il n'existe pas, on le créé
+                // sinon on récupère l'auteur en BDD, s'il n'existe pas, on le créé
                 $authorEntity = $this->entityManager->getRepository('AppBundle:Author')->findOneByName($post['author']);
 
-                if(!$authorEntity) {
+                if (!$authorEntity) {
                     $authorEntity = new Author();
                     $authorEntity->setName($post['author']);
                 }
@@ -174,10 +190,10 @@ class VdmRss
                 $authorEntites[$post['author']] = $authorEntity;
             }
 
-            # on récupère l'article en BDD, s'il n'existe pas, on le créé
+            // on récupère l'article en BDD, s'il n'existe pas, on le créé
             $postEntity = $this->entityManager->getRepository('AppBundle:Post')->findOneByPublicId($post['publicId']);
 
-            if(!$postEntity) {
+            if (!$postEntity) {
                 $postEntity = new Post();
                 $postEntity->setPublicId($post['publicId']);
             }
@@ -195,7 +211,7 @@ class VdmRss
     /**
      * Compte le nombre d'articles chargé
      *
-     * @return     string  Number of loaded posts.
+     * @return string  Number of loaded posts.
      */
     public function countLoadedPosts()
     {

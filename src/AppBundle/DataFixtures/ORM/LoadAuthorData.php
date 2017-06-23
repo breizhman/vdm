@@ -1,4 +1,9 @@
 <?php
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace AppBundle\DataFixtures\ORM;
 
 use Doctrine\Common\DataFixtures\AbstractFixture;
@@ -16,7 +21,7 @@ class LoadAuthorData extends AbstractFixture implements OrderedFixtureInterface
     /**
      * chargement des données en base
      *
-     * @param      \Doctrine\Common\Persistence\ObjectManager  $manager  The manager
+     * @param \Doctrine\Common\Persistence\ObjectManager $manager The manager
      */
     public function load(ObjectManager $manager)
     {

@@ -1,4 +1,9 @@
 <?php
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace Tests\AppBundle\Controller;
 
 use Tests\WebTestCase;
@@ -17,10 +22,10 @@ class PostControllerTest extends WebTestCase
 
     public function setUp()
     {
-        $this->fixtures = $this->loadFixtures(array(
+        $this->fixtures = $this->loadFixtures([
             'AppBundle\DataFixtures\ORM\LoadPostData',
-            'AppBundle\DataFixtures\ORM\LoadAuthorData'
-        ))->getReferenceRepository();
+            'AppBundle\DataFixtures\ORM\LoadAuthorData',
+        ])->getReferenceRepository();
     }
 
     public function testGetPosts()
@@ -36,12 +41,18 @@ class PostControllerTest extends WebTestCase
     {
         $client = $this->makeClient();
 
-        $client->request('GET',  $this->getUrl('get_posts', ['author' => 'none']));
+        $client->request(
+            'GET',
+            $this->getUrl('get_posts', ['author' => 'none'])
+        );
         $this->isSuccessfulJson($client->getResponse());
         $this->assertJson($client->getResponse()->getContent());
         $this->assertJsonPostsCount($client->getResponse()->getContent(), 0);
 
-        $client->request('GET',  $this->getUrl('get_posts', ['author' => $this->fixtures->getReference('author-jon')->getName()]));
+        $client->request(
+            'GET',
+            $this->getUrl('get_posts', ['author' => $this->fixtures->getReference('author-jon')->getName()])
+        );
         $this->isSuccessfulJson($client->getResponse());
         $this->assertJson($client->getResponse()->getContent());
         $this->assertJsonPostsCount($client->getResponse()->getContent(), 2);
@@ -51,12 +62,18 @@ class PostControllerTest extends WebTestCase
     {
         $client = $this->makeClient();
 
-        $client->request('GET',  $this->getUrl('get_posts', ['from' => '2017-06-01', 'to' => '2017-06-30']));
+        $client->request(
+            'GET',
+            $this->getUrl('get_posts', ['from' => '2017-06-01', 'to' => '2017-06-30'])
+        );
         $this->isSuccessfulJson($client->getResponse());
         $this->assertJson($client->getResponse()->getContent());
         $this->assertJsonPostsCount($client->getResponse()->getContent(), 2);
 
-        $client->request('GET',  $this->getUrl('get_posts', ['from' => '2018-06-01', 'to' => '2018-06-30']));
+        $client->request(
+            'GET',
+            $this->getUrl('get_posts', ['from' => '2018-06-01', 'to' => '2018-06-30'])
+        );
         $this->isSuccessfulJson($client->getResponse());
         $this->assertJson($client->getResponse()->getContent());
         $this->assertJsonPostsCount($client->getResponse()->getContent(), 0);
@@ -66,17 +83,40 @@ class PostControllerTest extends WebTestCase
     {
         $client = $this->makeClient();
 
-        $client->request('GET',  $this->getUrl('get_posts', ['author' => 'none', 'from' => '2017-05-01', 'to' => '2017-06-30']));
+        $client->request(
+            'GET',
+            $this->getUrl('get_posts', ['author' => 'none', 'from' => '2017-05-01', 'to' => '2017-06-30'])
+        );
         $this->isSuccessfulJson($client->getResponse());
         $this->assertJson($client->getResponse()->getContent());
         $this->assertJsonPostsCount($client->getResponse()->getContent(), 0);
 
-        $client->request('GET',  $this->getUrl('get_posts', ['author' => $this->fixtures->getReference('author-jim')->getName(), 'from' => '2017-06-01', 'to' => '2017-06-30']));
+        $client->request(
+            'GET',
+            $this->getUrl(
+                'get_posts',
+                [
+                    'author' => $this->fixtures->getReference('author-jim')->getName(),
+                    'from' => '2017-06-01',
+                    'to' => '2017-06-30',
+                ]
+            )
+        );
         $this->isSuccessfulJson($client->getResponse());
         $this->assertJson($client->getResponse()->getContent());
         $this->assertJsonPostsCount($client->getResponse()->getContent(), 0);
 
-        $client->request('GET',  $this->getUrl('get_posts', ['author' => $this->fixtures->getReference('author-jim')->getName(), 'from' => '2017-05-01', 'to' => '2017-06-30']));
+        $client->request(
+            'GET',
+            $this->getUrl(
+                'get_posts',
+                [
+                    'author' => $this->fixtures->getReference('author-jim')->getName(),
+                    'from' => '2017-05-01',
+                    'to' => '2017-06-30',
+                ]
+            )
+        );
         $this->isSuccessfulJson($client->getResponse());
         $this->assertJson($client->getResponse()->getContent());
         $this->assertJsonPostsCount($client->getResponse()->getContent(), 1);
@@ -86,10 +126,19 @@ class PostControllerTest extends WebTestCase
     {
         $client = $this->makeClient();
 
-        $client->request('GET',  $this->getUrl('get_post', ['id' => 0]));
+        $client->request(
+            'GET',
+            $this->getUrl('get_post', ['id' => 0])
+        );
         $this->isSuccessfulJson($client->getResponse(), false);
 
-        $client->request('GET',  $this->getUrl('get_post', ['id' => $this->fixtures->getReference('post-1')->getPublicId()]));
+        $client->request(
+            'GET',
+            $this->getUrl(
+                'get_post',
+                ['id' => $this->fixtures->getReference('post-1')->getPublicId()]
+            )
+        );
         $this->isSuccessfulJson($client->getResponse());
     }
 }

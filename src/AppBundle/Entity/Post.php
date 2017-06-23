@@ -1,14 +1,18 @@
 <?php
-
+/*
+ * This file is part of the API REST VDM
+ *
+ * (c) Sylvain Lacot <sylvain.lacot@gmail.com>
+ */
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Entité de la table des aticles
- * 
+ *
  * @author Sylvain Lacot <sylvain.lacot@gmail.com>
- * 
+ *
  * @ORM\Table(name="post")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\PostRepository")
  */
@@ -154,4 +158,3 @@ class Post
         return $this->author;
     }
 }
-
